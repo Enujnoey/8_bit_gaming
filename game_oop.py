@@ -1,12 +1,15 @@
 import pygame
 pygame.init()
 
-#Window Setup
-win = pygame.display.set_mode((1440,900))
+#GAMESETTINGS
+WIDTH=1440
+HEIGHT=896
 
-pygame.display.set_caption("noName")
-screenheight = 900
-screenlen = 1440
+#Window Setup
+win = pygame.display.set_mode((WIDTH,HEIGHT))
+
+pygame.display.set_caption("Stranded")
+
 
 
 
@@ -64,13 +67,13 @@ while run:
     if keys[pygame.K_LEFT] and square.x > square.vel:
         square.x -= square.vel
 
-    if keys[pygame.K_RIGHT] and square.x < screenlen - square.width - square.vel:
+    if keys[pygame.K_RIGHT] and square.x < WIDTH - square.width - square.vel:
         square.x += square.vel
 
     if keys[pygame.K_UP] and square.y > square.vel:
         square.y -= square.vel
 
-    if keys[pygame.K_DOWN] and square.y < screenheight - square.height - square.vel:
+    if keys[pygame.K_DOWN] and square.y < HEIGHT - square.height - square.vel:
         square.y += square.vel
 
     reDrawGameWindow()
