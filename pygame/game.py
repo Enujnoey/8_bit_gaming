@@ -32,8 +32,40 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 
 # Player settings
 PLAYER_SPEED = 250
-PLAYER_IMG = 'astronaut128.png' #Add Player Image Here
-
+PLAYER_IMG = 'astronaut8.png'
+"""
+addSpriteImage(PLAYER_IMG, "images/astronaut0.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut1.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut2.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut3.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut4.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut5.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut6.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut7.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut9.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut10.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut11.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut12.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut13.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut14.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut15.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut16.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut17.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut18.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut19.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut20.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut21.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut22.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut23.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut24.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut25.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut26.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut27.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut28.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut29.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut30.png")
+addSpriteImage(PLAYER_IMG, "images/astronaut31.png")
+"""
 #ITEM PROPERTIES
 ITEM_IMAGES = {'battery': 'battery.png',
                'IDcard': 'idcard.png'}
@@ -74,9 +106,9 @@ class Game():
         self.BLACK, self.WHITE = (0, 0, 0), (255, 255, 255) #Put it for the font/bg color
         #For the menu setting
         self.main_menu = MainMenu(self)
-        self.curr_menu = self.main_menu
         self.options = OptionsMenu(self)
         self.credits = CreditsMenu(self)
+        self.curr_menu = self.main_menu
         #Game title
         pg.display.set_caption(TITLE) #sets the title
         self.clock = pg.time.Clock() #sets the clock
@@ -84,17 +116,17 @@ class Game():
         self.load_data()
 
     def run(self):
-        # game loop
         while self.playing:
             self.dt = self.clock.tick(FPS) / 1000 #loops run at the same speed
-            self.events()
             self.update()
             self.draw()
-
+            self.check_events()
 
     def quit(self): #quits the game
         pg.quit()
         sys.exit()
+
+
     # update portion of the game loop
     def update(self):
         global battery_count
@@ -109,6 +141,7 @@ class Game():
             if hit.type == 'IDcard':
                 ID_count +=1
                 hit.kill() # I need to do hits for radiation and doors
+
 
     def load_data(self):
          game_folder = path.dirname(__file__)
@@ -175,12 +208,11 @@ class Game():
         text_rect.center = (x, y)
         self.screen.blit(text_surface, text_rect)
 
-
     def check_events(self):
         # check events
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                self.runnig, self.playing = False, False
+                self.running, self.playing = False, False
                 self.curr_menu.run_display = False
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
@@ -202,7 +234,7 @@ class Game():
                     self.BACK_KEY = True   
 
     def reset_keys(self):
-        self.UP_KEY, self.DOWN_KEY, self.RIGHT_KEY, self.LEFT_KEY, self.ACTION_KEY, self.START_KEY = False, False, False, False, False, False  
+        self.UP_KEY, self.DOWN_KEY, self.RIGHT_KEY, self.LEFT_KEY, self.ACTION_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False, False, False, False  
 
     
     def show_start_screen(self):
@@ -210,21 +242,6 @@ class Game():
 
     def show_go_screen(self):
         pass
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 class Player(pg.sprite.Sprite): #sprite framework by pygame
