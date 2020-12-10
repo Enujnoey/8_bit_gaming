@@ -16,58 +16,58 @@ vec = pg.math.Vector2
 # define colors  if needed(R, G, B)
 
 # game settings
-WIDTH = 1440  
-HEIGHT = 896 
+WIDTH = 1440  #screen width
+HEIGHT = 896 #screen height
 FPS = 60 #used together with clock to ensure that the game will run at the same speed on different devices
-TITLE = "Stranded"
+TITLE = "Stranded" #Title
 
-#GRID SETTINGS
-TILESIZE = 64
+#GRID SETTINGS 
+TILESIZE = 64 #The map is based on a grid as it makes it easier to format
 GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE
 
 # Player settings
-PLAYER_SPEED = 250
-PLAYER_IMG = 'astronaut128.png'
+PLAYER_SPEED = 250 #how fast the player moves
+PLAYER_IMG = 'astronaut128.png' #what the player looks like
 
 #ITEM PROPERTIES
 ITEM_IMAGES = {'battery': 'battery.png',
                'IDcard': 'idcard.png',
                'rejuvcapsule': 'rejuv.png',
-               'endofchapter': 'smalllight.png'}
-BOB_RANGE=20
+               'endofchapter': 'smalllight.png'} # a dictionary to hold the items
+BOB_RANGE=20 #used to move the item up and down so it's more noticable
 BOB_SPEED=2
 #LAYERS
 WALL_LAYER=1
-PLAYER_LAYER=2
+PLAYER_LAYER=2 #the player is on top of the items
 ITEMS_LAYER=1
 
 #FOG SETTINGS
-NIGHT_COLOR=(20,20,20)
-LIGHT_RADIUS=(4000,4000)
-LIGHT_MASK='light_350_med.png'
+NIGHT_COLOR=(20,20,20) # how dark is the environmet
+LIGHT_RADIUS=(4000,4000) #how big is the visible area
+LIGHT_MASK='light_350_med.png' #the image used for the visible area
 
-battery_count=1
-endofchapter_count=0
-ID_count=0
-ch1_playing=True
-ch3_playing=False
-ch4_playing=False
-ch5_playing=False
+battery_count=1 #used to count the batteries
+endofchapter_count=0 #used as a condition to change stages
+ID_count=0 # used to count the IDcards
+ch1_playing=True #not implemented . this was supposed to be the original condition to change stages
+ch3_playing=False #not implemented . this was supposed to be the original condition to change stages
+ch4_playing=False #not implemented . this was supposed to be the original condition to change stages
+ch5_playing=False #not implemented . this was supposed to be the original condition to change stages
 
 
 #CLASSES
 class Player(pg.sprite.Sprite): #sprite framework by pygame
-    def __init__(self, game, x, y):
-        self._layer=PLAYER_LAYER
-        self.groups = game.all_sprites
+    def __init__(self, game, x, y): #initializing the player class
+        self._layer=PLAYER_LAYER #assigning the layer
+        self.groups = game.all_sprites #adding the player to the sprite group
         pg.sprite.Sprite.__init__(self, self.groups) #needed for the sprite to work
         self.game = game
         self.image = game.player_img #what the sprite looks like
         self.rect = self.image.get_rect() #rectangle enclosing the sprite
-        self.rect.center=(x,y)
-        self.vx, self.vy = 0, 0
-        self.x = x
+        self.rect.center=(x,y) #rectangle coordinates
+        self.vx, self.vy = 0, 0 #used for movement
+        self.x = x #player position
         self.y = y
 
     def get_keys(self): #used for player movement
@@ -112,7 +112,7 @@ class Player(pg.sprite.Sprite): #sprite framework by pygame
         self.rect.y = self.y
         self.collide_with_walls('y')
 
-class Obstacle(pg.sprite.Sprite):
+class Obstacle(pg.sprite.Sprite): #used to assign the obstacles from the map
     def __init__(self, game, x, y, w, h):
         self._layer=WALL_LAYER
         self.groups =game.walls
@@ -124,7 +124,7 @@ class Obstacle(pg.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y 
         
-class Item(pg.sprite.Sprite):
+class Item(pg.sprite.Sprite): #class for the items
     def __init__(self,game,pos,type):
         self._layer=ITEMS_LAYER
         self.groups=game.all_sprites, game.items
@@ -132,14 +132,14 @@ class Item(pg.sprite.Sprite):
         self.game=game
         self.image=game.item_images[type]
         self.rect=self.image.get_rect()
-        self.type=type
-        self.pos=pos
-        self.rect.center=pos
-        self.tween=tween.easeInOutSine
+        self.type=type #which item from the dictionary
+        self.pos=pos #where is the item
+        self.rect.center=pos #where is the item's rectangle
+        self.tween=tween.easeInOutSine #used to move the item
         self.step=0
         self.dir=1
         
-    def update(self):
+    def update(self): #used to move the item
         offset=BOB_RANGE * (self.tween(self.step/BOB_RANGE) -0.5)
         self.rect.centery=self.pos.y + offset * self.dir
         self.step += BOB_SPEED
@@ -148,7 +148,7 @@ class Item(pg.sprite.Sprite):
             self.dir *= -1
             
 
-class Map:
+class Map: #used to create the map
     def __init__(self, filename):
         self.data = []
         with open(filename, 'rt') as f:
@@ -160,7 +160,7 @@ class Map:
         self.width = self.tilewidth * TILESIZE
         self.height = self.tileheight * TILESIZE
         
-class TiledMap:
+class TiledMap: #used to load the map from Tiled
     def __init__(self,filename):
         tm=pytmx.load_pygame(filename,pixelalpha=True)
         self.width=tm.width * tm.tilewidth
@@ -198,22 +198,22 @@ class Camera(): #class for the camera that follows the player
         self.camera=pg.Rect(x,y,self.width,self.height)         
 
 
-class Game:
+class Game: #class for the Game itself
     def __init__(self):
         pg.init() #initializes the pygame library
         self.screen = pg.display.set_mode((WIDTH, HEIGHT)) #creates the window
         pg.display.set_caption(TITLE) #sets the title
         self.clock = pg.time.Clock() #sets the clock
-        pg.key.set_repeat(500, 100)
+        pg.key.set_repeat(500, 100) #used to hold a key instead of pressing it multiple times
         self.load_data()
 
     def load_data(self):
-         game_folder = path.dirname(__file__)
-         img_folder = path.join(game_folder, 'img')
-         snd_folder = path.join(game_folder, 'snd')
-         music_folder = path.join(game_folder, 'music')
-         self.map_folder = path.join(game_folder, 'maps')
-         self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha()
+         game_folder = path.dirname(__file__) #assigns the game folder 
+         img_folder = path.join(game_folder, 'img') #assigns the image folder
+         snd_folder = path.join(game_folder, 'snd') #assigns the sound folder
+         music_folder = path.join(game_folder, 'music') #assigns the music folder
+         self.map_folder = path.join(game_folder, 'maps') #assigns the mape folder
+         self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha() #converts and loads the player image
          self.item_images={}
          for item in ITEM_IMAGES:
              self.item_images[item] = pg.image.load(path.join(img_folder, ITEM_IMAGES[item])).convert_alpha()
@@ -229,10 +229,10 @@ class Game:
         self.all_sprites = pg.sprite.LayeredUpdates() #groups sprites to make drawing easier
         self.walls = pg.sprite.Group() #groups walls
         self.items = pg.sprite.Group()
-        self.map = TiledMap(path.join(self.map_folder, 'map.tmx'))
+        self.map = TiledMap(path.join(self.map_folder, 'map.tmx')) #uses a file for the map
         self.map_img = self.map.make_map()
         self.map.rect = self.map_img.get_rect()
-        for tile_object in self.map.tmxdata.objects: 
+        for tile_object in self.map.tmxdata.objects:  #assigns objects from the map program to python
             obj_center=vec(tile_object.x + tile_object.width /2, tile_object.y + tile_object.height /2)
             if tile_object.name == 'player':
                 self.player=Player(self,obj_center.x,obj_center.y)
