@@ -4,8 +4,14 @@
 Created on Wed Dec  9 17:52:43 2020
 @author: enujnoey
 """
-
+from os import path #used to find files in different OS
 import pygame as pg
+pg.mixer.init()
+
+snd_dir = path.join(path.dirname(__file__), 'snd')
+pick_sound = pg.mixer.Sound(path.join(snd_dir,'pew.ogg'))
+pick_sound.set_volume(0.3)
+start_game_sound = pg.mixer.Sound(path.join(snd_dir,'enter.wav'))
 
 class Menu():
     def __init__(self, game):
@@ -49,19 +55,21 @@ class MainMenu(Menu):
 
     def move_cursor(self):
         if self.game.DOWN_KEY:
+            pick_sound.play()
             if self.state == 'Start':
                 self.cursor_rect.midtop = (self.optionsx + self.offset, self.optionsy)
                 self.state = 'Options'
-                
+
             elif self.state == 'Options':
                 self.cursor_rect.midtop = (self.creditsx + self.offset, self.creditsy)
                 self.state = 'Credits'
-                
+
             elif self.state == 'Credits':
                 self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
                 self.state = 'Start'
-                
+
         elif self.game.UP_KEY:
+            pick_sound.play()
             if self.state == 'Start':
                 self.cursor_rect.midtop = (self.creditsx + self.offset, self.creditsy)
                 self.state = 'Credits'
@@ -77,6 +85,8 @@ class MainMenu(Menu):
     def check_input(self):
         self.move_cursor()
         if self.game.START_KEY:
+            start_game_sound.play()
+            start_game_sound.set_volume(0.3)
             if self.state == 'Start':
                 self.game.playing = True
             elif self.state == 'Options':
