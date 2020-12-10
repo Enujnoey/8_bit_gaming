@@ -1,12 +1,13 @@
-# -*- coding: utf-8 -*-
 """
 Created on Mon Dec  7 10:34:02 2020
 
 @author: styssk
+
+code modified from https://www.youtube.com/playlist?list=PLsk-HSGFjnaGQq7ybM8Lgkh5EMxUWPm2i
 """
 
 import pygame as pg  #need to install ;a library used to run pygame functions
-import sys 
+import sys #used to quit the game in different OS
 from os import path #used to find files in different OS
 import pytmx #need to install ; used to format the map
 import pytweening as tween #need to install; used to move the items up and down
@@ -31,7 +32,9 @@ PLAYER_IMG = 'astronaut128.png'
 
 #ITEM PROPERTIES
 ITEM_IMAGES = {'battery': 'battery.png',
-               'IDcard': 'idcard.png'}
+               'IDcard': 'idcard.png',
+               'rejuvcapsule': 'rejuv.png',
+               'endofchapter': 'smalllight.png'}
 BOB_RANGE=20
 BOB_SPEED=2
 #LAYERS
@@ -41,10 +44,11 @@ ITEMS_LAYER=1
 
 #FOG SETTINGS
 NIGHT_COLOR=(20,20,20)
-LIGHT_RADIUS=(2000,2000)
+LIGHT_RADIUS=(4000,4000)
 LIGHT_MASK='light_350_med.png'
 
 battery_count=1
+endofchapter_count=0
 ID_count=0
 ch1_playing=True
 ch3_playing=False
@@ -240,7 +244,7 @@ class Game:
                 self.player=Player(self,obj_center.x,obj_center.y)
             if tile_object.name == 'wall':
                 Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
-            if tile_object.name in ['battery', 'IDcard']:
+            if tile_object.name in ['battery', 'IDcard','rejuvcapsule','endofchapter']:
                 Item(self, obj_center, tile_object.name)
         self.camera=Camera(self.map.width,self.map.height)
 
@@ -261,6 +265,7 @@ class Game:
     def update(self):
         global battery_count
         global ID_count
+        global endofchapter_count
         self.all_sprites.update() #update all sprites
         self.camera.update(self.player) #updates camera
         hits=pg.sprite.spritecollide(self.player,self.items, False)
@@ -271,8 +276,23 @@ class Game:
             if hit.type == 'IDcard':
                 ID_count +=1
                 hit.kill()
+            if hit.type == 'endofchapter':
+                endofchapter_count +=1
+                hit.kill()
+            if hit.type == 'rejuvcapsule':
+                pass  #reduce radiation
+        for tile_object in self.map.tmxdata.objects: 
+            obj_center=vec(tile_object.x + tile_object.width /2, tile_object.y + tile_object.height /2)
+            if tile_object.name == 'player_ch3' and endofchapter_count ==1:
+                self.player=Player(self,obj_center.x,obj_center.y)
+                endofchapter_count=-3
+            elif tile_object.name == 'player_ch4' and endofchapter_count ==-2:
+                self.player=Player(self,obj_center.x,obj_center.y)
+                endofchapter_count=-5
+            elif tile_object.name == 'player_ch5' and endofchapter_count ==-4 and ID_count ==1:
+                self.player=Player(self,obj_center.x,obj_center.y)
+                endofchapter_count=-7
 
-                # I need to do hits for radiation and doors
 #screen fog
     def render_fog(self):
         self.fog.fill(NIGHT_COLOR)
