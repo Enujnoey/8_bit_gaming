@@ -1,7 +1,7 @@
 """
 Created on Mon Dec  7 10:34:02 2020
 
-@author: styssk
+@author: styssk, enujnoey
 
 code modified from https://www.youtube.com/playlist?list=PLsk-HSGFjnaGQq7ybM8Lgkh5EMxUWPm2i
 """
@@ -9,6 +9,7 @@ code modified from https://www.youtube.com/playlist?list=PLsk-HSGFjnaGQq7ybM8Lgk
 import pygame as pg  #need to install ;a library used to run pygame functions
 import sys #used to quit the game in different OS
 from os import path #used to find files in different OS
+from menu import *
 import pytmx #need to install ; used to format the map
 import pytweening as tween #need to install; used to move the items up and down
 vec = pg.math.Vector2
@@ -206,23 +207,37 @@ class Game: #class for the Game itself
         self.clock = pg.time.Clock() #sets the clock
         pg.key.set_repeat(500, 100) #used to hold a key instead of pressing it multiple times
         self.load_data()
-
+        #for the menu setting
+        self.window = pg.Surface((WIDTH, HEIGHT))
+        self.font_title = "OpenSansPXBold.ttf"
+        self.font_dialog = "OpenSansPX.ttf"
+        self.DISPLAY_W = WIDTH
+        self.DISPLAY_H = HEIGHT
+        self.running, self.playing = True, False #Set two loops for the menus 
+        self.UP_KEY, self.DOWN_KEY, self.RIGHT_KEY, self.LEFT_KEY, self.ACTION_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False, False, False, False 
+        self.main_menu = MainMenu(self)
+        self.options = OptionsMenu(self)
+        self.credits = CreditsMenu(self)
+        self.curr_menu = self.main_menu
+        
     def load_data(self):
-         game_folder = path.dirname(__file__) #assigns the game folder 
-         img_folder = path.join(game_folder, 'img') #assigns the image folder
-         snd_folder = path.join(game_folder, 'snd') #assigns the sound folder
-         music_folder = path.join(game_folder, 'music') #assigns the music folder
-         self.map_folder = path.join(game_folder, 'maps') #assigns the mape folder
-         self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha() #converts and loads the player image
-         self.item_images={}
-         for item in ITEM_IMAGES:
-             self.item_images[item] = pg.image.load(path.join(img_folder, ITEM_IMAGES[item])).convert_alpha()
-         #field ov vision
-         self.fog=pg.Surface((WIDTH,HEIGHT))
-         self.fog.fill(NIGHT_COLOR)
-         self.light_mask = pg.image.load(path.join(img_folder, LIGHT_MASK)).convert_alpha()
-         self.light_mask=pg.transform.scale(self.light_mask,LIGHT_RADIUS)
-         self.light_rect=self.light_mask.get_rect()
+        game_folder = path.dirname(__file__) #assigns the game folder 
+        img_folder = path.join(game_folder, 'img') #assigns the image folder
+        snd_folder = path.join(game_folder, 'snd') #assigns the sound folder
+        music_folder = path.join(game_folder, 'music') #assigns the music folder
+        self.map_folder = path.join(game_folder, 'maps') #assigns the mape folder
+        self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha() #converts and loads the player image
+        self.item_images={}
+        for item in ITEM_IMAGES:
+            self.item_images[item] = pg.image.load(path.join(img_folder, ITEM_IMAGES[item])).convert_alpha()
+        #field ov vision
+        self.fog=pg.Surface((WIDTH,HEIGHT))
+        self.fog.fill(NIGHT_COLOR)
+        self.light_mask = pg.image.load(path.join(img_folder, LIGHT_MASK)).convert_alpha()
+        self.light_mask=pg.transform.scale(self.light_mask,LIGHT_RADIUS)
+        self.light_rect=self.light_mask.get_rect()
+
+
 
     def new(self):
         # initialize all variables and do all the setup for a new game
@@ -247,7 +262,6 @@ class Game: #class for the Game itself
             if tile_object.name in ['battery', 'IDcard','rejuvcapsule','endofchapter']:
                 Item(self, obj_center, tile_object.name)
         self.camera=Camera(self.map.width,self.map.height)
-
     def run(self):
         # game loop
         self.playing = True
@@ -309,6 +323,13 @@ class Game: #class for the Game itself
             #HUD to be done
         pg.display.flip() #after drawing everything (double buffering)
 
+    def draw_text(self,text, size, x, y):
+        font = pg.font.Font(self.font_name,size)
+        text_surface = font.render(text, True, (255,255,255))
+        text_rect = text_surface.get_rect()
+        text_rect.center = (x, y)
+        self.screen.blit(text_surface, text_rect)
+
     def events(self):
         # check events
         for event in pg.event.get():  #events for closing ht window
@@ -317,6 +338,24 @@ class Game: #class for the Game itself
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
                     self.quit()
+                if event.key == pg.K_RETURN:
+                    self.START_KEY = True
+                if event.key == pg.K_SPACE:
+                    self.ACTION_KEY = True
+                if event.key == pg.K_UP:
+                    self.UP_KEY = True
+                if event.key == pg.K_DOWN:
+                    self.DOWN_KEY = True
+                if event.key == pg.K_LEFT:
+                    self.LEFT_KEY = True
+                if event.key == pg.K_RIGHT:
+                    self.RIGHT_KEY = True
+                if event.key == pg.K_BACKSPACE:
+                    self.BACK_KEY = True
+
+
+    def reset_keys(self):
+        self.UP_KEY, self.DOWN_KEY, self.RIGHT_KEY, self.LEFT_KEY, self.ACTION_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False, False, False, False
 
     def show_start_screen(self):
         pass
@@ -327,7 +366,8 @@ class Game: #class for the Game itself
 # create the game object
 g = Game()
 g.show_start_screen()
-while True:
+while g.running:
+    g.curr_menu.display_menu() # bug when we press enter
     g.new()
     g.run()
     g.show_go_screen()
