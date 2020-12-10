@@ -26,7 +26,7 @@ TITLE = "Stranded" #Title
 TILESIZE = 64 #The map is based on a grid as it makes it easier to format
 GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE
-
+pg.mixer.init()
 # Player settings
 PLAYER_SPEED = 250 #how fast the player moves
 PLAYER_IMG = 'astronaut128.png' #what the player looks like
@@ -70,18 +70,31 @@ class Player(pg.sprite.Sprite): #sprite framework by pygame
         self.vx, self.vy = 0, 0 #used for movement
         self.x = x #player position
         self.y = y
+        self.step_delay = 250
+        self.last_step = pg.time.get_ticks()
+
+    def playsound(self):
+        self.now = pg.time.get_ticks()
+        if self.now - self.last_step > self.step_delay:
+            self.last_step = self.now
+            step_sound.play()
+
 
     def get_keys(self): #used for player movement
         self.vx, self.vy = 0, 0
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT] or keys[pg.K_a]:
             self.vx = -PLAYER_SPEED
+            self.playsound()
         elif keys[pg.K_RIGHT] or keys[pg.K_d]:
             self.vx = PLAYER_SPEED
+            self.playsound()
         elif keys[pg.K_UP] or keys[pg.K_w]:
             self.vy = -PLAYER_SPEED
+            self.playsound()
         elif keys[pg.K_DOWN] or keys[pg.K_s]:
             self.vy = PLAYER_SPEED
+            self.playsound()
         
 
     def collide_with_walls(self, dir):
@@ -286,9 +299,11 @@ class Game: #class for the Game itself
         for hit in hits:
             if hit.type == 'battery':
                 hit.kill()
+                pick_sound.play()
                 battery_count +=1
             if hit.type == 'IDcard':
                 ID_count +=1
+                pick_sound.play()
                 hit.kill()
             if hit.type == 'endofchapter':
                 endofchapter_count +=1
@@ -362,6 +377,15 @@ class Game: #class for the Game itself
 
     def show_go_screen(self):
         pass
+
+
+snd_dir = path.join(path.dirname(__file__), 'snd')
+step_sound = pg.mixer.Sound(path.join(snd_dir,'step.flac'))
+pick_sound = pg.mixer.Sound(path.join(snd_dir,'laser.wav'))
+pg.mixer.music.load(path.join(snd_dir, 'bg.ogg'))
+pg.mixer.music.play(loops=-1)
+
+
 
 # create the game object
 g = Game()
